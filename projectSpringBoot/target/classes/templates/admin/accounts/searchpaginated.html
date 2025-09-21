@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin.html}">
+<head>
+    <meta charset="UTF-8" />
+    <title>Categories - Pagination</title>
+    <style>
+  /* ========= E-COMMERCE CLEAN (Admin List + Pagination) ========= */
+  :root{
+    --c-bg:#f8fafc;
+    --c-surface:#ffffff;
+    --c-text:#0f172a;
+    --c-text-muted:#475569;
+    --c-border:#e2e8f0;
+    --c-accent:#2563eb;
+    --radius:12px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:0 6px 20px rgba(0,0,0,.08);
+    --ease:200ms cubic-bezier(.2,.7,.2,1);
+  }
+
+  /* Card/list khối gọn, sáng */
+  .card{
+    border:1px solid var(--c-border);
+    border-radius:16px;
+    box-shadow: var(--shadow-sm);
+    overflow:hidden;
+    background: var(--c-surface);
+  }
+  .card-body{ padding: 0; }
+  .card > .card-body > .table-responsive{ padding: .75rem; }
+
+  /* Thanh tiêu đề + khu vực trên */
+  h2.m-0{ font-weight:600; color: var(--c-text); }
+  .btn{ border-radius:10px; }
+
+  /* Nút "Add New" giữ màu success, thêm hover mượt */
+  .btn-success{
+    border:1px solid #22c55e; /* green-500 */
+    transition: transform var(--ease), box-shadow var(--ease), background-color var(--ease), border-color var(--ease);
+  }
+  .btn-success:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color:#16a34a;      /* green-600 */
+  }
+
+  /* Search form */
+  .form-control{
+    border:1px solid var(--c-border);
+    border-radius:10px;
+    padding:.55rem .7rem;
+    transition: border-color var(--ease), box-shadow var(--ease);
+  }
+  .form-control:focus{
+    border-color:#bfdbfe; /* blue-200 */
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);
+  }
+  .btn.btn-primary{
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    font-weight:600;
+    transition: transform var(--ease), box-shadow var(--ease), background-color var(--ease);
+  }
+  .btn.btn-primary:hover{
+    background:#1d4ed8; /* blue-700 */
+    border-color:#1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Alert info gọn */
+  .alert-info{
+    border-radius:10px;
+    border:1px solid var(--c-border);
+  }
+
+  /* Table sạch, dễ đọc */
+  .table{
+    margin: 0;
+  }
+  .table thead th{
+    background:#f1f5f9; /* slate-100 */
+    color: var(--c-text);
+    border-bottom:1px solid var(--c-border);
+  }
+  .table-striped > tbody > tr:nth-of-type(odd){
+    --bs-table-accent-bg: #fafafa;
+  }
+  .table-hover tbody tr:hover{
+    background:#f8fafc;
+  }
+  .table td, .table th{ vertical-align: middle; }
+  .table .btn{ border-radius:8px; padding: .3rem .55rem; }
+
+  /* Hàng actions canh phải nếu muốn (giữ nguyên nếu không) */
+  /* .table td:nth-child(1){ white-space: nowrap; } */
+
+  /* Pagination */
+  .pagination .page-item .page-link{
+    border:1px solid var(--c-border);
+    color: var(--c-text);
+    border-radius:10px;
+    margin: 0 .15rem;
+    transition: background-color var(--ease), color var(--ease), border-color var(--ease), transform var(--ease), box-shadow var(--ease);
+  }
+  .pagination .page-item .page-link:hover{
+    background:#f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .pagination .page-item.active .page-link{
+    background:#eff6ff;          /* blue-50 */
+    color: var(--c-accent);
+    border-color:#dbeafe;        /* blue-100 */
+    box-shadow: var(--shadow-sm);
+  }
+  .pagination .page-item.disabled .page-link{
+    color: var(--c-text-muted);
+    background:#f8fafc;
+    border-color: var(--c-border);
+    pointer-events: none;
+    opacity:.8;
+  }
+
+  /* Table responsive trên mobile: bo góc đẹp hơn */
+  .table-responsive{
+    border-top:1px solid var(--c-border);
+  }
+
+  /* Responsive cột trang */
+  @media (max-width: 992px){
+    .col-10.offset-1{ width: 100% !important; margin-left: 0 !important; }
+  }
+</style>
+    
+</head>
+<body>
+<section class="row" layout:fragment="content">
+    <div class="col-10 offset-1 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="m-0">Category List</h2>
+            <a class="btn btn-success" th:href="@{/admin/categories/add}">Add New</a>
+        </div>
+
+        <form class="row g-2 mb-3" th:action="@{/admin/categories/searchpaginated}" method="get">
+            <div class="col-auto">
+                <input class="form-control" type="text" name="name" th:value="${param.name}" placeholder="Search by name" />
+            </div>
+            <div class="col-auto">
+                <input class="form-control" type="number" name="size" min="1" max="50"
+                       th:value="${categoryPage != null} ? ${categoryPage.size} : ${param.size}" placeholder="Page size" />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+
+        <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 140px;">Actions</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${categoryPage.content}">
+                            <td>
+                                <a class="btn btn-sm btn-primary me-1"
+                                   th:href="@{|/admin/categories/edit/${item.categoryId}|}">Edit</a>
+                                <a class="btn btn-sm btn-danger"
+                                   th:href="@{|/admin/categories/delete/${item.categoryId}|}"
+                                   onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
+                            </td>
+                            <td th:text="${item.categoryId}">1</td>
+                            <td th:text="${item.name}">Category Name</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(categoryPage.content)}">
+                            <td colspan="3" class="text-center text-muted">No categories found.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-3" aria-label="Pagination" th:if="${pageNumbers != null}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${categoryPage.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/categories/searchpaginated(page=1, size=${categoryPage.size}, name=${param.name})}">First</a>
+                </li>
+                <li class="page-item" th:classappend="${categoryPage.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/categories/searchpaginated(page=${categoryPage.number}, size=${categoryPage.size}, name=${param.name})}">Previous</a>
+                </li>
+
+                <li class="page-item"
+                    th:each="i : ${pageNumbers}"
+                    th:classappend="${i == (categoryPage.number + 1)} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i}"
+                       th:href="@{/admin/categories/searchpaginated(page=${i}, size=${categoryPage.size}, name=${param.name})}">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${categoryPage.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/categories/searchpaginated(page=${categoryPage.number + 2}, size=${categoryPage.size}, name=${param.name})}">Next</a>
+                </li>
+                <li class="page-item" th:classappend="${categoryPage.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/categories/searchpaginated(page=${categoryPage.totalPages}, size=${categoryPage.size}, name=${param.name})}">Last</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</section>
+</body>
+</html>

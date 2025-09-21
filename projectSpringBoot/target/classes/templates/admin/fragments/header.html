@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Font: Inter (chuẩn e-commerce) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ========= E-COMMERCE CLEAN THEME TOKENS ========= */
+    :root{
+      --c-bg: #f8fafc;               /* nền trang */
+      --c-surface: #ffffff;          /* bề mặt navbar */
+      --c-text: #0f172a;             /* chữ chính */
+      --c-text-muted: #475569;       /* chữ phụ */
+      --c-border: #e2e8f0;           /* viền mảnh */
+      --c-accent: #2563eb;           /* màu nhấn */
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 6px 20px rgba(0,0,0,.08);
+      --ease: 200ms cubic-bezier(.2,.7,.2,1);
+    }
+
+    /* Tổng thể */
+    body{
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--c-bg);
+      color: var(--c-text);
+      color-scheme: light;
+    }
+
+    /* ========= NAVBAR (đổi từ glass/dark -> clean/light) ========= */
+    .navbar.glassmorphism{
+      background: var(--c-surface) !important;
+      border-bottom: 1px solid var(--c-border);
+      box-shadow: var(--shadow-sm);
+      position: relative !important;
+      z-index: 1030 !important;
+    }
+
+    /* Override màu do .navbar-dark áp đặt */
+    .navbar.navbar-dark .navbar-brand,
+    .navbar.navbar-dark .navbar-nav .nav-link{
+      color: var(--c-text) !important;
+    }
+
+    /* Brand: bỏ gradient/glow -> chữ đậm, hover màu nhấn */
+    .navbar-brand{
+      font-weight: 700;
+      letter-spacing: .2px;
+      background: none !important;
+      -webkit-text-fill-color: currentColor !important;
+      text-shadow: none !important;
+      transition: color var(--ease);
+      font-size: 1.25rem;
+    }
+    .navbar-brand:hover{ color: var(--c-accent) !important; }
+    .navbar-brand::after{ display:none !important; } /* tắt gạch chân animated cũ */
+
+    /* Nav link: hover nền nhạt, active màu nhấn */
+    .navbar-nav .nav-link{
+      font-weight: 500;
+      color: var(--c-text-muted) !important;
+      padding: 8px 12px !important;
+      border-radius: 8px;
+      transition: background-color var(--ease), color var(--ease), transform var(--ease);
+    }
+    .navbar-nav .nav-link:hover{
+      background: #f1f5f9; /* slate-100 */
+      color: var(--c-text) !important;
+      transform: translateY(-1px);
+    }
+    .navbar-nav .nav-link.active{
+      background: #eff6ff;           /* blue-50 */
+      color: var(--c-accent) !important;
+      border: 1px solid #dbeafe;     /* blue-100 */
+    }
+
+    /* Logo image tinh gọn */
+    .logo-img{
+      width: 40px; height: 40px; object-fit: cover;
+      border-radius: 8px;           /* vuông bo nhẹ thay vì tròn */
+      margin-right: 8px;
+      border: 1px solid var(--c-border);
+    }
+
+    /* Dropdown: card trắng, viền mảnh, đổ bóng nhẹ */
+    .dropdown{ position: relative; z-index: 1050 !important; }
+    .dropdown-toggle{
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: var(--c-surface);
+      color: var(--c-text);
+      transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease), border-color var(--ease);
+    }
+    .dropdown-toggle:hover{
+      background: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: #cbd5e1;
+    }
+    .dropdown-menu{
+      background: var(--c-surface) !important;
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      transform-origin: top center;
+      animation: dropdownFade .18s var(--ease);
+      min-width: 200px;
+      z-index: 9999 !important;
+    }
+    @keyframes dropdownFade{ from{opacity:0; transform: translateY(-4px)} to{opacity:1; transform: translateY(0)} }
+
+    .dropdown-item{
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 4px 6px;
+      color: var(--c-text);
+      transition: background-color var(--ease), transform var(--ease);
+    }
+    .dropdown-item:hover{
+      background: #f1f5f9;
+      transform: translateX(2px);
+    }
+    .dropdown-item.text-danger:hover{
+      background: #fee2e2; /* đỏ nhạt khi hover item nguy hiểm */
+    }
+
+    /* Buttons trong header: giữ class cũ nhưng đổi style sang light */
+    .btn-outline-light{
+      border-radius: 10px;
+      border: 1px solid var(--c-border) !important;
+      background: var(--c-surface) !important;
+      color: var(--c-text) !important;
+      transition: background-color var(--ease), color var(--ease), box-shadow var(--ease), transform var(--ease), border-color var(--ease);
+    }
+    .btn-outline-light:hover{
+      background: var(--c-accent) !important;
+      color: #fff !important;
+      border-color: var(--c-accent) !important;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary{
+      border-radius: 10px;
+      background: var(--c-accent) !important;
+      border: 1px solid var(--c-accent) !important;
+      transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease);
+    }
+    .btn-primary:hover{
+      background: #1d4ed8 !important; /* blue-700 */
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    /* Toggler: đổi icon sang màu tối để hợp navbar sáng */
+    .navbar .navbar-toggler{
+      border-color: var(--c-border) !important;
+    }
+    .navbar.navbar-dark .navbar-toggler-icon{
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(15,23,42,1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    }
+
+    /* Dark mode tự động (nếu hệ thống ở dark) */
+    @media (prefers-color-scheme: dark){
+      :root{
+        --c-bg:#0b1220; --c-surface:#0f172a; --c-text:#e5e7eb; --c-text-muted:#94a3b8; --c-border:#1f2937;
+        --shadow-sm:0 1px 2px rgba(0,0,0,.35); --shadow-md:0 10px 24px rgba(0,0,0,.4);
+      }
+      .navbar-brand:hover{ color: #93c5fd !important; } /* blue-300 */
+      .navbar-nav .nav-link:hover{ background:#0b1220; }
+      .navbar-nav .nav-link.active{ background:#0b1220; border-color:#1f2937; }
+      .dropdown-toggle:hover{ background:#0b1220; }
+    }
+  </style>
+</head>
+
+
+
+<body>
+    <!-- Header Fragment -->
+    <div th:fragment="header">
+        <nav class="navbar navbar-expand-lg navbar-dark glassmorphism bg-dark">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" th:href="@{/home}">
+                    <img class="logo-img" src="/images/logo.jpg" alt="Logo" style="width: 40px; height: 40px;">
+                    <span style="font-size: 1.2rem;">Trần Lê Quốc Đại Shop</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI != null and #httpServletRequest.requestURI.contains('/home')} ? 'active' : ''"
+                                th:href="@{/home}">
+                                <i class="fas fa-home me-1"></i> Trang Chủ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI != null and #httpServletRequest.requestURI.contains('/products')} ? 'active' : ''"
+                                th:href="@{/products}">
+                                <i class="fas fa-box me-1"></i> Sản Phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                th:classappend="${#httpServletRequest != null and #httpServletRequest.requestURI != null and #httpServletRequest.requestURI.contains('/contact')} ? 'active' : ''"
+                                th:href="@{/contact}">
+                                <i class="fas fa-envelope me-1"></i> Liên Hệ
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div th:if="${session.account != null}">
+                        <!-- User đã đăng nhập - hiển thị dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i> <span th:text="${session.account.fullname}">User</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" th:href="@{/profile}">
+                                        <i class="fas fa-user-cog me-2"></i> Chỉnh sửa thông tin
+                                    </a>
+                                </li>
+
+                                <!-- Hiển thị nút Trang quản trị chỉ cho admin (role = 1) -->
+                                <li th:if="${session.account.role == 1}">
+                                    <a class="dropdown-item" th:href="@{/admin/home}">
+                                        <i class="fas fa-cogs me-2"></i> Trang quản trị
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" th:href="@{/logout}">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div th:unless="${session.account != null}">
+                        <!-- User chưa đăng nhập - hiển thị nút đăng nhập/đăng ký -->
+                        <div class="d-flex">
+                            <a th:href="@{/login}" class="btn btn-outline-light me-2">
+                                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                            </a>
+                            <a th:href="@{/register}" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-1"></i> Đăng ký
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</body>
+</html>

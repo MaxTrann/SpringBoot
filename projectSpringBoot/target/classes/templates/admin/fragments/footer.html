@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap & Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Font hiện đại, phù hợp e-commerce -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ========= E-COMMERCE CLEAN THEME TOKENS ========= */
+    :root{
+      --c-bg: #f8fafc;                 /* nền trang */
+      --c-surface: #ffffff;            /* thẻ/card/footer */
+      --c-text: #0f172a;               /* chữ chính (slate-900) */
+      --c-text-muted: #475569;         /* chữ phụ (slate-600) */
+      --c-border: #e2e8f0;             /* viền nhạt */
+      --c-accent: #2563eb;             /* xanh thương hiệu (blue-600) */
+      --c-accent-contrast: #ffffff;    /* chữ trên nền accent */
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 6px 20px rgba(0,0,0,.08);
+      --ease: 200ms cubic-bezier(.2,.7,.2,1);
+    }
+
+    /* Nền & font tổng thể */
+    body{
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--c-bg);
+      color: var(--c-text);
+      color-scheme: light;
+    }
+
+    /* ========= FOOTER (card sáng, gọn, chuẩn e-commerce) ========= */
+    .footer-glassmorphism{
+      background: var(--c-surface) !important;      /* override bg-dark */
+      color: var(--c-text) !important;              /* override text-light */
+      border-top: 1px solid var(--c-border);
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      margin-top: 3rem !important;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    /* đảm bảo mọi chữ bên trong dùng màu kế thừa (khỏi bị text-light ép) */
+    .footer-glassmorphism, .footer-glassmorphism * { color: inherit; }
+
+    /* ========= CONTACT: layout gọn, dễ đọc ========= */
+    .contact-info{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 1rem;
+    }
+    .contact-item{
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border-radius: var(--radius);
+      background: transparent;
+      transition: background-color var(--ease), transform var(--ease), box-shadow var(--ease);
+    }
+    .contact-item:hover{
+      background: #f1f5f9; /* slate-100 */
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .contact-icon{
+      display: inline-flex; justify-content: center; align-items: center;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: #eff6ff;              /* blue-50 */
+      color: var(--c-accent);
+      border: 1px solid #dbeafe;        /* blue-100 */
+      flex: 0 0 auto;
+    }
+
+    /* ========= SOCIAL: nút tròn gọn, hover nhẹ ========= */
+    .social-links{ display:flex; justify-content:center; gap:.6rem; }
+    .social-icon{
+      display:inline-flex; justify-content:center; align-items:center;
+      width:42px; height:42px;
+      border-radius: 999px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      color: var(--c-text);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), background-color var(--ease);
+    }
+    .social-icon:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;           /* slate-300 */
+      background: #f8fafc;
+    }
+    .social-icon i{ font-size: 0.95rem; }
+
+    /* ========= COPYRIGHT ========= */
+    .copyright{
+      font-size: .95rem;
+      color: var(--c-text-muted);
+      padding-top: 1rem;
+      border-top: 1px solid var(--c-border);
+      transition: color var(--ease);
+    }
+    .copyright:hover{ color: var(--c-text); }
+    .copyright .shop-name{
+      font-weight: 700;
+      color: var(--c-text);
+      background: none;                 /* bỏ gradient để clean hơn */
+      -webkit-text-fill-color: currentColor;
+    }
+
+    /* ========= LINKS ========= */
+    .footer-glassmorphism a{
+      color: var(--c-accent);
+      text-decoration: none;
+    }
+    .footer-glassmorphism a:hover{ text-decoration: underline; }
+
+    /* ========= DARK MODE (tự động nếu hệ thống ở dark) ========= */
+    @media (prefers-color-scheme: dark){
+      :root{
+        --c-bg: #0b1220;
+        --c-surface: #0f172a;
+        --c-text: #e5e7eb;
+        --c-text-muted: #94a3b8;
+        --c-border: #1f2937;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+        --shadow-md: 0 10px 24px rgba(0,0,0,.4);
+      }
+      .contact-item:hover{ background:#0b1220; }
+      .social-icon{ background:#111827; }
+      .social-icon:hover{ background:#0b1220; }
+      .contact-icon{ background:#0b1220; border-color:#1f2937; }
+    }
+
+    /* ========= Motion accessibility ========= */
+    @media (prefers-reduced-motion: reduce){
+      .contact-item:hover, .social-icon:hover{ transform:none; }
+    }
+  </style>
+</head>
+
+
+
+
+<body>
+  <!-- Footer Fragment -->
+  <footer th:fragment="footer" class="footer-glassmorphism py-4">
+    <div class="container text-center">
+
+      <div class="contact-info">
+        <a class="contact-item" href="tel:+84000000000" aria-label="Gọi MSSV 23110201">
+          <span class="contact-icon"><i class="fas fa-phone-alt" aria-hidden="true"></i></span>
+          <span>MSSV: 23110201</span>
+        </a>
+
+        <a class="contact-item" href="mailto:support@myshop.com" aria-label="Gửi email đến support@myshop.com">
+          <span class="contact-icon"><i class="fas fa-envelope" aria-hidden="true"></i></span>
+          <span>Email: support@myshop.com</span>
+        </a>
+
+        <a class="contact-item" href="https://maps.google.com/?q=TP.+Hồ+Chí+Minh"
+           target="_blank" rel="noopener" aria-label="Xem địa chỉ TP. Hồ Chí Minh trên bản đồ">
+          <span class="contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span>
+          <span>Địa chỉ: TP. Hồ Chí Minh</span>
+        </a>
+      </div>
+
+      <div class="social-links my-3">
+        <a href="#" class="social-icon" aria-label="Facebook" target="_blank" rel="noopener">
+          <i class="fab fa-facebook-f" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="social-icon" aria-label="Instagram" target="_blank" rel="noopener">
+          <i class="fab fa-instagram" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="social-icon" aria-label="Twitter" target="_blank" rel="noopener">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="social-icon" aria-label="YouTube" target="_blank" rel="noopener">
+          <i class="fab fa-youtube" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <p class="copyright mb-0">
+        &copy; 2025 <span class="shop-name">Trần Lê Quốc Đại Shop</span>. All rights reserved.
+      </p>
+    </div>
+  </footer>
+</body>
+
+</html>

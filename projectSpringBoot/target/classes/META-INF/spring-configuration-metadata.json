@@ -1,0 +1,20 @@
+{
+  "groups": [
+    {
+      "name": "storage",
+      "type": "vn.maxtrann.config.StorageProperties",
+      "sourceType": "vn.maxtrann.config.StorageProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "storage.location",
+      "type": "java.lang.String",
+      "sourceType": "vn.maxtrann.config.StorageProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

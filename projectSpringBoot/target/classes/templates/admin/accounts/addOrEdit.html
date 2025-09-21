@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin.html}">
+<head>
+<meta charset="UTF-8" />
+<title th:text="${category.isEdit} ? 'Edit Category' : 'Add New Category'">Add New Category</title>
+
+<style>
+  /* ========= E-COMMERCE CLEAN (Admin Form) ========= */
+  :root{
+    --c-bg:#f8fafc;             /* nền trang */
+    --c-surface:#ffffff;        /* bề mặt card */
+    --c-text:#0f172a;           /* chữ chính */
+    --c-text-muted:#475569;     /* chữ phụ */
+    --c-border:#e2e8f0;         /* viền nhạt */
+    --c-accent:#2563eb;         /* màu nhấn */
+    --radius:12px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:0 6px 20px rgba(0,0,0,.08);
+    --ease:200ms cubic-bezier(.2,.7,.2,1);
+  }
+
+  body{
+    font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--c-bg);
+    color: var(--c-text);
+  }
+
+  /* Card */
+  .card{
+    border:1px solid var(--c-border);
+    border-radius:16px;
+    box-shadow: var(--shadow-sm);
+    overflow:hidden;
+    background: var(--c-surface);
+  }
+  .card-header{
+    background: var(--c-surface);
+    border-bottom:1px solid var(--c-border);
+    padding: .9rem 1rem;
+  }
+  .card-header h2{
+    margin:0; font-size:1.25rem; font-weight:600; color:var(--c-text);
+  }
+
+  /* Labels & inputs */
+  .form-label{ font-weight:600; color: var(--c-text); }
+  .form-control{
+    border:1px solid var(--c-border);
+    border-radius:10px;
+    padding:.65rem .75rem;
+    transition: border-color var(--ease), box-shadow var(--ease);
+  }
+  .form-control:focus{
+    border-color:#bfdbfe;                    /* blue-200 */
+    box-shadow:0 0 0 4px rgba(37,99,235,.15);/* focus ring */
+  }
+  .form-text.text-muted{ color: var(--c-text-muted) !important; }
+  .text-danger{ color:#dc2626 !important; }  /* red-600 */
+
+  /* Nút */
+  .btn.btn-primary{
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    border-radius:10px;
+    padding:.55rem 1rem;
+    font-weight:600;
+    transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease);
+  }
+  .btn.btn-primary:hover{
+    background:#1d4ed8;                      /* blue-700 */
+    border-color:#1d4ed8;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  /* Lỗi server-side (nếu có gán class is-invalid từ backend) */
+  .form-control.is-invalid, .is-invalid{
+    border-color:#ef4444 !important;         /* red-500 */
+    box-shadow:0 0 0 3px rgba(239,68,68,.15) !important;
+  }
+
+  /* Khoảng cách + responsive cột giữa */
+  .mb-3 .form-text{ margin-top:.35rem; }
+  @media (max-width: 992px){
+    .col-6.offset-3{ width:100% !important; margin-left:0 !important; }
+  }
+</style>
+
+</head>
+
+
+<body>
+<section class="row" layout:fragment="content">
+  <div class="col-6 offset-3 mt-4">
+    <form th:action="@{/admin/categories/saveOrUpdate}" method="post" th:object="${category}">
+      <div class="card">
+        <div class="card-header">
+          <h2 th:text="${category.isEdit} ? 'Edit Category' : 'Add New Category'">Add New Category</h2>
+        </div>
+        <div class="card-body">
+          <input type="hidden" th:field="*{isEdit}" />
+          <div class="mb-3" th:if="${category.isEdit}">
+            <label for="categoryId" class="form-label">Category ID:</label>
+            <input type="text" readonly class="form-control" th:field="*{categoryId}" id="categoryId"
+                   aria-describedby="categoryIdHelp" placeholder="Category ID" />
+            <div th:if="${#fields.hasErrors('categoryId')}" id="categoryIdHelp" class="form-text text-muted">
+              <span class="text-danger">Category ID is required!</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="name" class="form-label">Category Name:</label>
+            <input type="text" class="form-control" th:field="*{name}" id="name"
+                   aria-describedby="nameHelp" placeholder="Category Name" />
+            <div th:if="${#fields.hasErrors('name')}" id="nameHelp" class="form-text text-muted">
+              <span class="text-danger" th:errors="*{name}">Category name is required</span>
+            </div>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary" th:text="${category.isEdit} ? 'Update' : 'Save'">Save</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin.html}">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>List Category</title>
+
+  <!-- E-commerce Clean: form/list styling gọn, sáng -->
+  <style>
+    :root{
+      --c-bg:#f8fafc; --c-surface:#ffffff; --c-text:#0f172a; --c-text-muted:#475569;
+      --c-border:#e2e8f0; --c-accent:#2563eb;
+      --radius:12px; --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+    }
+    body{ background:var(--c-bg); color:var(--c-text); }
+
+    .card{
+      border:1px solid var(--c-border);
+      border-radius:16px;
+      box-shadow: var(--shadow-sm);
+      overflow:hidden;
+      background:var(--c-surface);
+    }
+    .card-header{
+      background:var(--c-surface);
+      border-bottom:1px solid var(--c-border);
+      font-weight:600;
+    }
+
+    /* Table clean */
+    .table thead th{
+      background:#f1f5f9; /* slate-100 */
+      border-bottom:1px solid var(--c-border);
+      color:var(--c-text);
+    }
+    .table tbody td{ vertical-align: middle; }
+    .table .btn{ border-radius:8px; }
+  </style>
+</head>
+
+<body>
+<section class="row" layout:fragment="content">
+  <div class="col mt-4">
+    <div class="card">
+      <div class="card-header">List Category</div>
+      <div class="card-body">
+
+        <div th:if="${message}" class="alert alert-primary" role="alert">
+          <i th:text="${message}">Message here</i>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="category : ${categories}">
+              <td th:text="${category.categoryId}" scope="row"></td>
+              <td th:text="${category.name}"></td>
+              <td class="text-end">
+                <a th:href="@{/admin/categories/view/{id}(id=${category.categoryId})}"
+                   class="btn btn-outline-info btn-sm" title="View">
+                  <i class="fa fa-info"></i>
+                </a>
+                <a th:href="@{/admin/categories/edit/{id}(id=${category.categoryId})}"
+                   class="btn btn-outline-warning btn-sm" title="Edit">
+                  <i class="fa fa-edit"></i>
+                </a>
+                <a th:href="@{/admin/categories/delete/{id}(id=${category.categoryId})}"
+                   class="btn btn-outline-danger btn-sm" title="Delete">
+                  <i class="fa fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+
+            <!-- Hiển thị khi rỗng -->
+            <tr th:if="${#lists.isEmpty(categories)}">
+              <td colspan="3" class="text-center text-muted">No categories found.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>
