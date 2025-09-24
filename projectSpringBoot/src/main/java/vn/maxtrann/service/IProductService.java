@@ -1,5 +1,6 @@
 package vn.maxtrann.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,7 @@ public interface IProductService {
     <S extends ProductEntity> S save(S entity);
     List<ProductEntity> findByNameContaining(String name);
     Page<ProductEntity> findByNameContaining(String name, Pageable pageable);
+
+    Optional<ProductEntity> findByName(String name);
+    Optional<ProductEntity> findByCreatedDate(Timestamp createdDate);
 }

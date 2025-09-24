@@ -3,6 +3,8 @@ package vn.maxtrann.entity;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,8 +37,10 @@ public class CategoryEntity implements Serializable {
     @Column(name = "categoryName", columnDefinition = "nvarchar(200)")
     private String name;
 
+    @Column(name = "icon", columnDefinition = "nvarchar(200)")
+    private String icon;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private Set<ProductEntity> product;
 

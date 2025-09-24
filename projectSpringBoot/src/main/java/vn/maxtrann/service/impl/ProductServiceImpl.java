@@ -1,5 +1,6 @@
 package vn.maxtrann.service.impl;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,5 +90,15 @@ public class ProductServiceImpl implements IProductService{
     @Override
     public Page<ProductEntity> findByNameContaining(String name, Pageable pageable) {
         return productRepository.findByNameContaining(name, pageable);
+    }
+
+    @Override
+    public Optional<ProductEntity> findByName(String name) {
+        return productRepository.findByName(name);
+    }
+
+    @Override
+    public Optional<ProductEntity> findByCreatedDate(Timestamp createdDate) {
+        return productRepository.findByCreatedDate(createdDate);
     }
 }

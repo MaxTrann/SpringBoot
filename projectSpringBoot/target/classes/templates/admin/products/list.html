@@ -1,10 +1,353 @@
 <!DOCTYPE html>
-<html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{admin/layout-admin}"
+>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<title>Danh sách danh mục</title>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+/>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Thêm meta CSRF nếu dùng Spring Security -->
+<th:block th:if="${_csrf != null}">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</th:block>
 
+<!-- <script>
+var contextPath = "${pageContext.request.contextPath}";
+</script> -->
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+    <h3>Danh sách danh mục</h3>
+    <p>
+        <button
+        class="btn btn-success ml-auto"
+        onclick="showCreateNewCategoryModal()"
+        >
+        <i class="fas fa-plus mr-2"></i>Thêm Category Ajax
+        </button>
+    </p>
+    <table class="table table-striped table-responsive" id="categoryTable">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Id</th>
+            <th>Icon</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Dữ liệu sẽ được render bằng Ajax -->
+        </tbody>
+    </table>
+    </div>
+    <!-- Modal thêm mới category -->
+    <div class="modal" tabindex="-1" role="dialog" id="createCategoryModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <form
+            id="addCategory"
+            method="post"
+            onsubmit="return false;"
+            enctype="multipart/form-data"
+        >
+            <div class="modal-header">
+            <h5 class="modal-title">Add Category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body">
+            <div class="form-group mb-2">
+                <label for="new_categoryname">Category Name</label>
+                <input
+                type="text"
+                class="form-control"
+                id="new_categoryname"
+                name="categoryName"
+                required
+                />
+            </div>
+            <div class="form-group mb-2">
+                <label for="new_icon">Icon</label>
+                <input
+                type="file"
+                class="form-control"
+                id="new_icon"
+                name="icon"
+                required
+                />
+            </div>
+            <div class="form-group row">
+                <div class="col text-center">
+                <button type="submit" class="btn btn-primary w-100">Add</button>
+                </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+            >
+                Đóng
+            </button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </div>
+    <!-- Modal cập nhật category -->
+    <div
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    id="updateCategoryInfoModal"
+    >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Update Category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+        </div>
+        <div class="modal-body">
+            <div class="card">
+            <div class="card-header">
+                <h5><i class="far fa-address-card mr1"></i>Category</h5>
+            </div>
+            <div class="card-body pb-0">
+                <p id="updateCategoryInfoModalId"></p>
+                <p id="updateCategoryInfoModalName"></p>
+                <p id="updateCategoryInfoModalIcon"></p>
+            </div>
+            </div>
+            <div class="card mt-2">
+            <div class="card-header">
+                <h5>
+                <i class="far fa-address-card mr1"></i>Update Category
+                </h5>
+            </div>
+            <div class="card-body pb-0">
+                <form
+                id="updateCategory"
+                method="post"
+                onsubmit="return false;"
+                enctype="multipart/form-data"
+                >
+                <div class="form-group mb-2">
+                    <label for="categoryName_up">Category Name</label>
+                    <input
+                    type="text"
+                    class="form-control"
+                    id="categoryName_up"
+                    name="categoryName"
+                    />
+                </div>
+                <div class="form-group mb-2">
+                    <label for="icon_up">Icon</label>
+                    <input
+                    type="file"
+                    class="form-control"
+                    id="icon_up"
+                    name="icon"
+                    />
+                </div>
+                <input type="hidden" id="categoryId_up" name="categoryId" />
+                <div class="form-group row">
+                    <div class="col text-center">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Cập nhật
+                    </button>
+                    </div>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            >
+            Đóng
+            </button>
+        </div>
+        </div>
+    </div>
+    </div>
+    <!-- Script Ajax -->
+    
+
+    <script th:inline="javascript">
+    // 1) Khai báo sẵn các URL cố định bằng Thymeleaf
+    const URL_LIST = /*[[@{/api/category}]]*/ "";
+    const URL_ADD = /*[[@{/api/category/addCategory}]]*/ "";
+    const URL_UPDATE = /*[[@{/api/category/updateCategory}]]*/ "";
+    const URL_DELETE = /*[[@{/api/category/deleteCategory}]]*/ "";
+    const IMG_BASE = /*[[@{/admin/categories/images/}]]*/ "";
+
+    // 2) Gắn CSRF cho mọi Ajax (nếu có)
+    $(function () {
+        var token = $('meta[name="_csrf"]').attr("content");
+        var header = $('meta[name="_csrf_header"]').attr("content");
+        $(document).ajaxSend(function (e, xhr) {
+        if (token && header) xhr.setRequestHeader(header, token);
+        });
+    });
+
+    // 3) Load list
+    $(document).ready(function () {
+        $.getJSON(URL_LIST, function (json) {
+        const rows = [];
+        for (let i = 0; i < json.length; i++) {
+            rows.push("<tr>");
+            rows.push("<td>" + json[i].categoryId + "</td>");
+            rows.push(
+            '<td><img src="' +
+                IMG_BASE +
+                json[i].icon +
+                '" style="width:70px" class="img-fluid" alt=""></td>'
+            );
+            rows.push(
+            "<td>" + (json[i].name || json[i].categoryName || "") + "</td>"
+            );
+            rows.push(
+            "<td>" +
+                '<a href="#" data-id="' +
+                json[i].categoryId +
+                '" class="btn btn-outline-warning editcate"><i class="fa fa-edit"></i></a> ' +
+                '<a href="#" data-id="' +
+                json[i].categoryId +
+                '" class="btn btn-outline-danger deletecate"><i class="fa fa-trash"></i></a>' +
+                "</td>"
+            );
+            rows.push("</tr>");
+        }
+        $("#categoryTable tbody").html(rows.join(""));
+        });
+    });
+
+    // 4) Add
+    $("form#addCategory").on("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        $.ajax({
+        url: URL_ADD,
+        type: "POST",
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function () {
+            location.reload();
+        },
+        error: function (xhr) {
+            alert(
+            "Thêm thất bại: " +
+                xhr.status +
+                " - " +
+                (xhr.responseText || "Unknown")
+            );
+        },
+        });
+    });
+
+    // 5) Show modals
+    function showCreateNewCategoryModal() {
+        $("#new_categoryname").val("");
+        $("#new_icon").val("");
+        new bootstrap.Modal(
+        document.getElementById("createCategoryModal")
+        ).show();
+    }
+    window.showCreateNewCategoryModal = showCreateNewCategoryModal; // để nút onclick gọi được
+
+    function showEditCategoryModal(categoryId, categoryName, icon) {
+        $("#updateCategoryInfoModalId").text("Category ID: " + categoryId);
+        $("#updateCategoryInfoModalName").text(
+        "Category Name: " + categoryName
+        );
+        $("#updateCategoryInfoModalIcon").text("Icon: " + icon);
+        $("#categoryName_up").val(categoryName);
+        $("#categoryId_up").val(categoryId);
+        $("#icon_up").val("");
+        new bootstrap.Modal(
+        document.getElementById("updateCategoryInfoModal")
+        ).show();
+    }
+
+    // 6) Gán sự kiện Edit
+    $(document).on("click", ".editcate", function () {
+        const tr = $(this).closest("tr");
+        const categoryId = tr.find("td:eq(0)").text();
+        const categoryName = tr.find("td:eq(2)").text();
+        const icon = tr
+        .find("td:eq(1)")
+        .find("img")
+        .attr("src")
+        .split("/")
+        .pop();
+        showEditCategoryModal(categoryId, categoryName, icon);
+    });
+
+    // 7) Update
+    $("form#updateCategory").on("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        $.ajax({
+        url: URL_UPDATE,
+        type: "PUT",
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function () {
+            location.reload();
+        },
+        error: function (xhr) {
+            alert(
+            "Cập nhật thất bại: " +
+                xhr.status +
+                " - " +
+                (xhr.responseText || "Unknown")
+            );
+        },
+        });
+    });
+
+    // 8) Delete
+    $(document).on("click", ".deletecate", function () {
+        const id = $(this).data("id");
+        if (!confirm("Do you really want to delete record?")) return;
+        const parent = $(this).closest("tr");
+        $.ajax({
+        type: "DELETE",
+        url: URL_DELETE + "?categoryId=" + encodeURIComponent(id),
+        success: function () {
+            parent.fadeOut("slow", function () {
+            $(this).remove();
+            });
+            location.reload(true);
+        },
+        error: function (xhr) {
+            alert(
+            "Xóa không thành công: " +
+                xhr.status +
+                " - " +
+                (xhr.responseText || "Unknown")
+            );
+        },
+        });
+    });
+    </script>
+</div>
 </body>
 </html>

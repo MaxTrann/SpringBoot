@@ -95,7 +95,7 @@ public class ProductController {
         return new ModelAndView("forward:/admin/products/searchpaginated", model);
 	}
 	
-	@RequestMapping("")
+	@RequestMapping("/list")
     public String list(ModelMap model) {
         List<ProductEntity> list = productService.findAll();
         model.addAttribute("products", list);
