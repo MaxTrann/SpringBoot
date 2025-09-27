@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public <S extends Category> S save(S entity) {
-        if (entity.getCategoryName() == null) {
+        if (entity.getCategoryId() == null) {
             return categoryRepository.save(entity);
         }
         else {
