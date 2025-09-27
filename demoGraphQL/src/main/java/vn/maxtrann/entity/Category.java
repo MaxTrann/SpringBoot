@@ -1,11 +1,12 @@
 package vn.maxtrann.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
+import java.io.Serializable;
 import java.util.Set;
 
 @Data
@@ -13,18 +14,15 @@ import java.util.Set;
 @AllArgsConstructor
 
 @Entity
-@Table(name = "categories")
-public class Category {
+@Table(name = "Category")
+public class Category implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "name", columnDefinition = "nvarchar(200)")
-    private String name;
-
-    @Column(name = "images", columnDefinition = "nvarchar(200)")
+    private Long categoryId;
+    private String categoryName;
     private String images;
-
-    @ManyToMany(mappedBy = "categories")
-    private Set<User> users = new HashSet<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL )
+    private Set<Product> products;
 }

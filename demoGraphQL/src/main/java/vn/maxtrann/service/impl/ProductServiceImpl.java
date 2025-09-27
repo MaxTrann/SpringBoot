@@ -1,65 +1,95 @@
 package vn.maxtrann.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vn.maxtrann.entity.Product;
 import vn.maxtrann.repository.ProductRepository;
-import vn.maxtrann.repository.UserRepository;
-import vn.maxtrann.service.ProductService;
+import vn.maxtrann.service.IProductService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl implements IProductService {
 
-    private final ProductRepository productRepo;
-    private final UserRepository userRepo;
+    @Autowired
+    ProductRepository productRepository;
+    @Override
+    public void deleteAll() {
+        productRepository.deleteAll();
+    }
 
-    public ProductServiceImpl(ProductRepository productRepo, UserRepository userRepo) {
-        this.productRepo = productRepo;
-        this.userRepo = userRepo;
+    @Override
+    public void delete(Product entity) {
+        productRepository.delete(entity);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    @Override
+    public long count() {
+        return productRepository.count();
+    }
+
+    @Override
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
+    }
+
+    @Override
+    public List<Product> findAllById(Iterable<Long> ids) {
+        return productRepository.findAllById(ids);
+    }
+
+    @Override
+    public List<Product> findAll(Sort sort) {
+        return productRepository.findAll(sort);
+    }
+
+    @Override
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     @Override
     public List<Product> findAll() {
-        return productRepo.findAll();
+        return productRepository.findAll();
     }
 
     @Override
-    public Product findById(Long id) {
-        return productRepo.findById(id).orElseThrow(
-                () -> new RuntimeException("Product not found: " + id));
+    public <S extends Product> S save(S entity) {
+        if (entity.getProductId() == null) {
+            return productRepository.save(entity);
+        } else {
+            Optional<Product> optImages = findById(entity.getProductId());
+
+        }
+        return productRepository.save(entity);
     }
 
     @Override
-    public Product save(Product product) {
-        return productRepo.save(product);
+    public List<Product> findByNameContaining(String name) {
+        return productRepository.findByProductNameContaining(name);
     }
 
     @Override
-    public Product update(Long id, Product newProduct) {
-        Product p = findById(id);
-        p.setTitle(newProduct.getTitle());
-        p.setQuantity(newProduct.getQuantity());
-        p.setDesc(newProduct.getDesc());
-        p.setPrice(newProduct.getPrice());
-        p.setUser(newProduct.getUser());
-        return productRepo.save(p);
+    public Page<Product> findByNameContaining(String name, Pageable pageable) {
+        return productRepository.findByProductNameContaining(name, pageable);
     }
 
     @Override
-    public void delete(Long id) {
-        productRepo.deleteById(id);
+    public Optional<Product> findByProductName(String productName) {
+        return productRepository.findByProductName(productName);
     }
 
     @Override
-    public List<Product> findAllByPriceAsc() {
-        return productRepo.findAllByOrderByPriceAsc();
-    }
-
-    @Override
-    public List<Product> findByCategory(Long categoryId) {
-        return productRepo.findByCategoryIdOrderByPriceAsc(categoryId);
+    public List<Product> findByCategoryId(Long categoryId) {
+        return productRepository.findByCategoryCategoryId(categoryId);
     }
 }

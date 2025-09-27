@@ -1,37 +1,44 @@
 package vn.maxtrann.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "Product")
 
+public class Product implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;                     // product id
+    private Long productId;
+    @Column(length = 500, columnDefinition = "nvarchar(500) not null")
+    private String productName;
+    @Column(nullable = false)
+    private int quantity;
+    @Column(nullable = false)
+    private double unitPrice;
+    @Column(length = 200)
+    private String description;
 
-    @Column(name = "title", length = 200)
-    private String title;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "categoryId")
+    private Category category;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @ManyToMany(mappedBy = "products")
+    private Set<User> users = new HashSet<>();
 
-    @Column(name = "desc", length = 2000)
-    private String desc;
 
-    // dùng BigDecimal cho tiền tệ
-    @Column(name = "price", precision = 18, scale = 2)
-    private Double price;
 
-    // FK tới User (userid)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")       // cột userid trong đề
-    private User user;
 }

@@ -1,49 +1,101 @@
 package vn.maxtrann.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import vn.maxtrann.entity.Category;
 import vn.maxtrann.repository.CategoryRepository;
-import vn.maxtrann.service.CategoryService;
+import vn.maxtrann.service.ICategoryService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl implements ICategoryService {
+    @Autowired
+    CategoryRepository categoryRepository;
 
-    private final CategoryRepository categoryRepo;
+    @Override
+    public void delete(Category entity) {
+        categoryRepository.delete(entity);
+    }
 
-    public CategoryServiceImpl(CategoryRepository categoryRepo) {
-        this.categoryRepo = categoryRepo;
+    @Override
+    public void deleteById(Long id) {
+        categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public long count() {
+        return categoryRepository.count();
+    }
+
+    @Override
+    public <S extends Category> Optional<S> findOne(Example<S> example) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Category> findById(Long id) {
+        return categoryRepository.findById(id);
+    }
+
+    @Override
+    public List<Category> findAllById(Iterable<Long> ids) {
+        return categoryRepository.findAllById(ids);
+    }
+
+    @Override
+    public List<Category> findAll(Sort sort) {
+        return categoryRepository.findAll(sort);
+    }
+
+    @Override
+    public Page<Category> findAll(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     @Override
     public List<Category> findAll() {
-        return categoryRepo.findAll();
+        return categoryRepository.findAll();
     }
 
     @Override
-    public Category findById(Long id) {
-        return categoryRepo.findById(id).orElseThrow(
-                () -> new RuntimeException("Category not found: " + id));
+    public Optional<Category> findByCategoryName(String name) {
+        return categoryRepository.findByCategoryName(name);
     }
 
     @Override
-    public Category save(Category category) {
-        return categoryRepo.save(category);
+    public <S extends Category> S save(S entity) {
+        if (entity.getCategoryName() == null) {
+            return categoryRepository.save(entity);
+        }
+        else {
+            Optional<Category> opt = findById(entity.getCategoryId());
+            if (opt.isPresent()) {
+                if (StringUtils.isEmpty(entity.getImages())) {
+                    entity.setImages(opt.get().getImages());
+                }
+                else{
+                    entity.setImages(entity.getImages());
+                }
+            }
+
+            return categoryRepository.save(entity);
+        }
     }
 
     @Override
-    public Category update(Long id, Category newCategory) {
-        Category c = findById(id);
-        c.setName(newCategory.getName());
-        c.setImages(newCategory.getImages());
-        return categoryRepo.save(c);
+    public Page<Category> findByCategoryNameContaining(String name, Pageable pageable) {
+        return  categoryRepository.findByCategoryNameContaining(name, pageable);
     }
 
     @Override
-    public void delete(Long id) {
-        categoryRepo.deleteById(id);
+    public List<Category> findByCategoryNameContaining(String name) {
+        return categoryRepository.findByCategoryNameContaining(name);
     }
 }
